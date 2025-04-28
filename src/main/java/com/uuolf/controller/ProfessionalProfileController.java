@@ -1,16 +1,15 @@
 package com.uuolf.controller;
 
 import com.uuolf.dto.ProfessionalProfileRequest;
+import com.uuolf.dto.ProfessionalSummaryDto;
 import com.uuolf.service.ProfessionalProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/profile")
@@ -27,5 +26,11 @@ public class ProfessionalProfileController {
         profileService.createProfile(userDetails.getUsername(), request);
 
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ProfessionalSummaryDto>> getAllProfessionals() {
+        List<ProfessionalSummaryDto> list = profileService.getAllProfessionalSummary();
+        return ResponseEntity.ok(list);
     }
 }

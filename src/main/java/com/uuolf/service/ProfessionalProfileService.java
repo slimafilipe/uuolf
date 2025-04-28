@@ -2,6 +2,7 @@ package com.uuolf.service;
 
 import com.uuolf.dto.ProfessionalProfileRequest;
 import com.uuolf.dto.ProfessionalProfileResponse;
+import com.uuolf.dto.ProfessionalSummaryDto;
 import com.uuolf.entity.ProfessionalProfile;
 import com.uuolf.entity.Specialty;
 import com.uuolf.entity.User;
@@ -14,9 +15,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static java.awt.geom.Point2D.distance;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +28,11 @@ public class ProfessionalProfileService {
     private final UserRepository userRepository;
 
     public void createProfile(String email, ProfessionalProfileRequest request) {
+        Optional<ProfessionalProfile> existingProfile = professionalProfileRepository.findByUserEmail(email);
+        if (existingProfile.isPresent()) {
+            throw new IllegalStateException("Perfil já criado para este usuário");
+        }
+
         User user = userRepository.findByEmail(email)
                 .orElseThrow(()-> new UsernameNotFoundException("Usuário não encontrado"));
 
@@ -76,5 +82,19 @@ public class ProfessionalProfileService {
         profile.getLatitude(),
         profile.getLongetude()
         );
+    }
+
+    public List<ProfessionalSummaryDto> getAllProfessionalSummary() {
+        return professionalProfileRepository.findAll()
+                .stream()
+                .map(profile -> new ProfessionalSummaryDto(
+                        profile.getId(),
+                        profile.getUser().getName(),
+                        profile.getBio(),
+                        profile.getSpecialties().stream()
+                                .map(s-> s.getName())
+                                .toList()
+                ))
+                .toList();
     }
 }

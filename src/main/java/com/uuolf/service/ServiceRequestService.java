@@ -1,9 +1,11 @@
 package com.uuolf.service;
 
 import com.uuolf.dto.ServiceRequestDto;
+import com.uuolf.entity.ProfessionalProfile;
 import com.uuolf.entity.RequestStatus;
 import com.uuolf.entity.ServiceRequest;
 import com.uuolf.entity.User;
+import com.uuolf.repository.ProfessionalProfileRepository;
 import com.uuolf.repository.ServiceRequestRepository;
 import com.uuolf.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +20,16 @@ public class ServiceRequestService {
 
     private final ServiceRequestRepository requestRepository;
     private final UserRepository userRepository;
+    private final ProfessionalProfileRepository profileRepository;
 
     public void createRequest(String clientEmail, ServiceRequestDto dto) {
         User client = userRepository.findByEmail(clientEmail)
                 .orElseThrow(()-> new RuntimeException("Cliente não encontrado"));
 
-        User professional = userRepository.findById(dto.getProfessionalId())
+        ProfessionalProfile profile = profileRepository.findById(dto.getProfessionalId())
                 .orElseThrow(()-> new RuntimeException("Profissional não encontrado"));
+
+        User professional = profile.getUser();
 
         ServiceRequest request = ServiceRequest.builder()
                 .client(client)
